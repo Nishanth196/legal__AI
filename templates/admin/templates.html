@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Manage Templates – Admin – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Template Management{% endblock %}
+
+    <div class="page-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} mb-3">{{ msg }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <!-- Add Template -->
+      <div class="card mb-4 fade-in-up">
+        <div class="card-header"><i class="fas fa-plus me-2 text-accent"></i>Add New Template</div>
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('admin.add_template') }}" class="row g-3">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="col-md-5">
+              <label class="form-label">Template Name</label>
+              <input type="text" class="form-control" name="name" placeholder="e.g. FSSAI License" required/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Category</label>
+              <select class="form-select" name="category">
+                {% for cat in ['compliance','license','corporate','agreement','policy','hr','regulatory','tax'] %}
+                <option value="{{ cat }}">{{ cat.title() }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button type="submit" class="btn btn-success w-100">
+                <i class="fas fa-plus me-1"></i>Add Template
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Templates List -->
+      <div class="card fade-in-up delay-1">
+        <div class="card-header">
+          <i class="fas fa-layer-group me-2 text-accent"></i>All Templates ({{ templates|length }})
+        </div>
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Slug</th><th>Active</th><th>Actions</th></tr></thead>
+            <tbody>
+              {% for tpl in templates %}
+              <tr>
+                <td class="small text-muted">#{{ tpl.id }}</td>
+                <td class="fw-600 small">{{ tpl.name }}</td>
+                <td><span class="badge bg-info-subtle text-info">{{ tpl.category.title() }}</span></td>
+                <td class="small text-muted" style="font-family:monospace;">{{ tpl.slug }}</td>
+                <td>
+                  <span class="badge {{ 'bg-success' if tpl.is_active else 'bg-secondary' }}">
+                    {{ 'Active' if tpl.is_active else 'Inactive' }}
+                  </span>
+                </td>
+                <td>
+                  <form method="POST" action="{{ url_for('admin.delete_template', tpl_id=tpl.id) }}"
+                        style="display:inline"
+                        onsubmit="return confirm('Delete template {{ tpl.name }}?')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button class="btn btn-icon btn-sm btn-outline-danger" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

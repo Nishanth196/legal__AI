@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}Train DL Model – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Deep Learning (Train Neural Network){% endblock %}
+
+    <div class="page-content">
+      <div class="row">
+        <!-- Upload Form -->
+        <div class="col-lg-5 mb-4 fade-in-up">
+          <div class="card h-100 shadow-sm border-0" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85);">
+            <div class="card-header bg-gradient bg-primary text-white py-3">
+              <h5 class="mb-0 fw-bold"><i class="fas fa-upload me-2"></i>Upload Dataset</h5>
+            </div>
+            <div class="card-body">
+              <form method="POST" enctype="multipart/form-data" id="trainForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                
+                <div class="mb-4">
+                  <label class="form-label fw-bold">Select CSV Dataset</label>
+                  <input type="file" class="form-control" name="dataset" accept=".csv" required>
+                  <div class="form-text mt-2 small text-muted">Upload a dataset with columns: Employee_ID, Employee_Name, Business_Type, Company_Name, State, Registration_Type, Annual_Turnover_Lakhs, Required_Document. Max 10MB.</div>
+                </div>
+                
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary btn-lg" id="trainBtn" style="border-radius: 10px;">
+                    <i class="fas fa-network-wired me-2"></i>Train Neural Network
+                  </button>
+                </div>
+              </form>
+              
+              <!-- Loading State -->
+              <div id="loadingState" class="mt-4 text-center d-none">
+                <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="fw-bold">Training Neural Network...</h5>
+                <p class="text-muted small">Running preprocessing, splitting datasets (80:20), and compiling MLP with Keras (Dense 64 -> Dense 32 -> Dense 16 -> Softmax).</p>
+                <div class="progress mt-3" style="height: 8px; border-radius: 5px;">
+                  <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 100%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Results -->
+        <div class="col-lg-7 mb-4 fade-in-up" style="animation-delay: 0.1s;">
+          <div class="card h-100 shadow-sm border-0" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85);">
+            <div class="card-header bg-gradient bg-success text-white py-3">
+              <h5 class="mb-0 fw-bold"><i class="fas fa-chart-line me-2"></i>Training Metrics</h5>
+            </div>
+            <div class="card-body">
+              {% if result %}
+                <div class="text-center mb-4">
+                  <div class="mb-3">
+                    <i class="fas fa-check-circle fa-4x text-success" style="filter: drop-shadow(0 2px 8px rgba(46, 213, 115, 0.3));"></i>
+                  </div>
+                  <h4 class="fw-bold text-success">Deep Learning Training Successful</h4>
+                  <p class="text-muted">Keras model saved permanently to <code>dl/dl_model.keras</code></p>
+                </div>
+                
+                <div class="row text-center g-3">
+                  <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border border-light-subtle shadow-xs">
+                      <div class="text-muted small mb-1">Accuracy</div>
+                      <h3 class="fw-bold text-primary mb-0">{{ (result.accuracy * 100)|round(2) }}%</h3>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border border-light-subtle shadow-xs">
+                      <div class="text-muted small mb-1">Precision</div>
+                      <h3 class="fw-bold text-info mb-0">{{ (result.precision * 100)|round(2) }}%</h3>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border border-light-subtle shadow-xs">
+                      <div class="text-muted small mb-1">Recall</div>
+                      <h3 class="fw-bold text-warning mb-0">{{ (result.recall * 100)|round(2) }}%</h3>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border border-light-subtle shadow-xs">
+                      <div class="text-muted small mb-1">F1 Score</div>
+                      <h3 class="fw-bold text-danger mb-0">{{ (result.f1_score * 100)|round(2) }}%</h3>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="mt-4 p-3 bg-light rounded border border-light-subtle text-center">
+                  <div class="text-muted small mb-1"><i class="far fa-clock me-1"></i> Training Time</div>
+                  <div class="fw-bold fs-5 text-dark">{{ result.training_time|round(3) }} seconds</div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                  <a href="{{ url_for('dl.comparison') }}" class="btn btn-outline-success">
+                    <i class="fas fa-balance-scale me-2"></i>View Model Comparison
+                  </a>
+                </div>
+                
+              {% else %}
+                <div class="text-center text-muted p-5 d-flex flex-column align-items-center justify-content-center h-100">
+                  <i class="fas fa-network-wired fa-4x mb-3" style="opacity: 0.3;"></i>
+                  <h5>Awaiting Deep Learning Training</h5>
+                  <p class="small max-width-350">Please upload a valid CSV dataset to fit the Neural Network model and generate performance charts.</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('trainForm');
+    const btn = document.getElementById('trainBtn');
+    const loading = document.getElementById('loadingState');
+    
+    if(form) {
+        form.addEventListener('submit', function() {
+            btn.classList.add('d-none');
+            loading.classList.remove('d-none');
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users – Admin – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}User Management{% endblock %}
+
+    <div class="page-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} mb-3">{{ msg }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <!-- Search -->
+      <div class="card mb-4 fade-in-up">
+        <div class="card-body py-3">
+          <form method="GET" class="d-flex gap-3">
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-search"></i></span>
+              <input type="text" class="form-control" name="search" value="{{ search }}"
+                     placeholder="Search by name or email…"/>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card fade-in-up delay-1">
+        <div class="card-header d-flex justify-content-between">
+          <span><i class="fas fa-users me-2 text-accent"></i>All Users ({{ users.total }})</span>
+        </div>
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>ID</th><th>Name</th><th>Email</th><th>Role</th>
+                <th>Verified</th><th>Joined</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for u in users.items %}
+              <tr>
+                <td class="small text-muted">#{{ u.id }}</td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width:32px;height:32px;background:linear-gradient(135deg,#1e90ff,#0d1b4b);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;">
+                      {{ u.name[0].upper() }}
+                    </div>
+                    <span class="fw-600 small">{{ u.name }}</span>
+                  </div>
+                </td>
+                <td class="small">{{ u.email }}</td>
+                <td><span class="badge {{ 'bg-danger' if u.role=='admin' else 'bg-primary' }}-subtle text-{{ 'danger' if u.role=='admin' else 'primary' }}">{{ u.role.title() }}</span></td>
+                <td>
+                  <span class="badge {{ 'bg-success' if u.is_verified else 'bg-warning text-dark' }}">
+                    {{ 'Verified' if u.is_verified else 'Pending' }}
+                  </span>
+                </td>
+                <td class="small text-muted">{{ u.created_at.strftime('%d %b %Y') }}</td>
+                <td>
+                  <form method="POST" action="{{ url_for('admin.toggle_user', user_id=u.id) }}" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button class="btn btn-icon btn-sm btn-outline-warning" title="Toggle Status">
+                      <i class="fas fa-toggle-on"></i>
+                    </button>
+                  </form>
+                  {% if u.email != 'admin@lexregai.com' %}
+                  <form method="POST" action="{{ url_for('admin.delete_user', user_id=u.id) }}"
+                        style="display:inline"
+                        onsubmit="return confirm('Delete user {{ u.email }}?')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button class="btn btn-icon btn-sm btn-outline-danger ms-1" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

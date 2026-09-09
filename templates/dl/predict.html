@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}DL Prediction – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Deep Learning Model Prediction{% endblock %}
+
+    <div class="page-content">
+      <div class="row">
+        <!-- Prediction Form -->
+        <div class="col-lg-6 mb-4 fade-in-up">
+          <div class="card h-100 shadow-sm border-0" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85);">
+            <div class="card-header bg-gradient bg-primary text-white py-3">
+              <h5 class="mb-0 fw-bold"><i class="fas fa-search-dollar me-2"></i>Predict Document (DL)</h5>
+            </div>
+            <div class="card-body">
+              <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Business Type *</label>
+                  <select class="form-select" name="business_type" required>
+                    <option value="">Select Type...</option>
+                    <option value="IT Services">IT Services</option>
+                    <option value="Manufacturing">Manufacturing</option>
+                    <option value="Retail">Retail</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Software & IT Services">Software & IT Services</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label fw-bold">State *</label>
+                  <select class="form-select" name="state" required>
+                    <option value="">Select State...</option>
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <option value="Karnataka">Karnataka</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Gujarat">Gujarat</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Registration Type *</label>
+                  <select class="form-select" name="registration_type" required>
+                    <option value="">Select Registration...</option>
+                    <option value="Private Limited">Private Limited</option>
+                    <option value="Public Limited">Public Limited</option>
+                    <option value="LLP">LLP</option>
+                    <option value="Partnership">Partnership</option>
+                    <option value="Sole Proprietorship">Sole Proprietorship</option>
+                  </select>
+                </div>
+                
+                <div class="mb-4">
+                  <label class="form-label fw-bold">Annual Turnover (Lakhs) *</label>
+                  <input type="number" class="form-control" name="annual_turnover" min="0" step="0.1" value="0" required>
+                </div>
+                
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary" style="border-radius: 10px;">
+                    <i class="fas fa-magic me-2"></i>Run DL Inference
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Results -->
+        <div class="col-lg-6 mb-4 fade-in-up" style="animation-delay: 0.1s;">
+          <div class="card h-100 shadow-sm border-0" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85);">
+            <div class="card-header bg-gradient bg-info text-white py-3">
+              <h5 class="mb-0 fw-bold"><i class="fas fa-robot me-2"></i>DL Prediction Result</h5>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4">
+              {% if error %}
+                <div class="alert alert-danger mb-0 w-100 shadow-sm">
+                  <i class="fas fa-exclamation-triangle me-2"></i> No trained DL model found.
+                  <br><br>
+                  <a href="{{ url_for('dl.train') }}" class="btn btn-danger btn-sm">Go Train DL Model</a>
+                </div>
+              {% elif prediction %}
+                <h5 class="text-muted mb-3">Neural Network Recommended Document</h5>
+                <div class="alert alert-success d-inline-block px-4 py-3 mb-3 shadow-xs" style="border-radius: 12px;">
+                  <h3 class="mb-0 text-success fw-bold">{{ prediction }}</h3>
+                </div>
+                
+                <div class="mt-2">
+                  <span class="badge bg-info-subtle text-info px-3 py-2 fs-6">
+                    <i class="fas fa-chart-line me-1"></i> Softmax Confidence: {{ confidence }}%
+                  </span>
+                </div>
+              {% else %}
+                <div class="text-center text-muted">
+                  <i class="fas fa-network-wired fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
+                  <h5 class="text-muted">Awaiting Deep Learning Input</h5>
+                  <p class="text-muted small">Fill the form and click Predict to run Keras MLP inference.</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

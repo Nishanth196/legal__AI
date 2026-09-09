@@ -1,0 +1,15 @@
+﻿venv/
+__pycache__/
+*.pyc
+.env
+*.db
+legal__AI/
+
+venv/
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+lexreg.db
+static/generated/

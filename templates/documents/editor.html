@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% block title %}Edit – {{ doc.title[:40] }} – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Document Editor{% endblock %}
+
+    <div class="page-content">
+
+      <!-- Document header -->
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+          <h2 style="font-size:18px;font-weight:700;color:var(--primary);margin:0;">
+            <i class="fas fa-file-edit me-2 text-accent"></i>
+            {{ doc.title[:60] }}{% if doc.title|length > 60 %}…{% endif %}
+          </h2>
+          <div class="text-muted small mt-1">
+            <i class="fas fa-clock me-1"></i>Last updated: {{ doc.updated_at.strftime('%d %b %Y, %H:%M') }}
+            &nbsp;|&nbsp;
+            <span class="badge bg-{{ doc.status_badge() }}-subtle text-{{ doc.status_badge() }}">
+              {{ doc.status.title() }}
+            </span>
+          </div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="{{ url_for('documents.download_pdf', doc_id=doc.id) }}"
+             class="btn btn-danger btn-sm">
+            <i class="fas fa-file-pdf me-1"></i>Download PDF
+          </a>
+          <a href="{{ url_for('documents.download_docx', doc_id=doc.id) }}"
+             class="btn btn-primary btn-sm" style="background:#2b5be8;">
+            <i class="fas fa-file-word me-1"></i>Download DOCX
+          </a>
+        </div>
+      </div>
+
+      <form method="POST" id="editorForm" action="{{ url_for('documents.editor', doc_id=doc.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="action" id="formAction" value="save"/>
+        <input type="hidden" name="content" id="contentInput"/>
+
+        <div class="row g-4">
+          <!-- Editor -->
+          <div class="col-lg-9">
+            <!-- Title row -->
+            <div class="mb-3">
+              <input type="text" class="form-control fw-700"
+                     name="title" value="{{ doc.title }}"
+                     style="font-size:16px;font-weight:700 !important;"
+                     placeholder="Document title…"/>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="editor-toolbar">
+              <button type="button" class="editor-btn" onclick="fmt('bold')" title="Bold"><b>B</b></button>
+              <button type="button" class="editor-btn" onclick="fmt('italic')" title="Italic"><i>I</i></button>
+              <button type="button" class="editor-btn" onclick="fmt('underline')" title="Underline"><u>U</u></button>
+              <button type="button" class="editor-btn" onclick="fmt('strikeThrough')" title="Strike"><s>S</s></button>
+              <div style="width:1px;background:var(--border);margin:4px 6px;"></div>
+              <button type="button" class="editor-btn" onclick="fmt('justifyLeft')" title="Align Left">
+                <i class="fas fa-align-left"></i>
+              </button>
+              <button type="button" class="editor-btn" onclick="fmt('justifyCenter')" title="Center">
+                <i class="fas fa-align-center"></i>
+              </button>
+              <button type="button" class="editor-btn" onclick="fmt('justifyRight')" title="Right">
+                <i class="fas fa-align-right"></i>
+              </button>
+              <button type="button" class="editor-btn" onclick="fmt('justifyFull')" title="Justify">
+                <i class="fas fa-align-justify"></i>
+              </button>
+              <div style="width:1px;background:var(--border);margin:4px 6px;"></div>
+              <button type="button" class="editor-btn" onclick="fmt('insertUnorderedList')" title="Bullet List">
+                <i class="fas fa-list-ul"></i>
+              </button>
+              <button type="button" class="editor-btn" onclick="fmt('insertOrderedList')" title="Numbered List">
+                <i class="fas fa-list-ol"></i>
+              </button>
+              <div style="width:1px;background:var(--border);margin:4px 6px;"></div>
+              <button type="button" class="editor-btn" onclick="insertTable()" title="Insert Table">
+                <i class="fas fa-table"></i>
+              </button>
+              <button type="button" class="editor-btn" onclick="insertHR()" title="Divider">
+                <i class="fas fa-minus"></i>
+              </button>
+              <div style="width:1px;background:var(--border);margin:4px 6px;"></div>
+              <!-- Font size -->
+              <select class="form-select form-select-sm" style="width:90px;border-radius:8px;font-size:12px;"
+                      onchange="fmt('fontSize', this.value)">
+                <option value="2">Small</option>
+                <option value="3" selected>Normal</option>
+                <option value="4">Large</option>
+                <option value="5">H3</option>
+                <option value="6">H2</option>
+              </select>
+              <!-- Font color -->
+              <input type="color" class="form-control form-control-color"
+                     style="width:36px;height:34px;padding:2px;border-radius:8px;"
+                     title="Text Color" onchange="fmt('foreColor', this.value)"/>
+
+              <div style="flex:1;"></div>
+              <!-- NLP Tools -->
+              <button type="button" class="btn btn-sm btn-outline-primary" onclick="analyzeText()" title="NLP Analyze">
+                <i class="fas fa-brain me-1"></i>Analyze
+              </button>
+            </div>
+
+            <div id="editor" contenteditable="true">
+              {{ doc.content | safe }}
+            </div>
+
+            <div class="mt-2 text-muted" style="font-size:11px;">
+              <i class="fas fa-info-circle me-1"></i>
+              Edit the generated content above. All formatting is preserved in PDF & DOCX export.
+            </div>
+          </div>
+
+          <!-- Actions Sidebar -->
+          <div class="col-lg-3">
+            <div class="card mb-3 fade-in-up">
+              <div class="card-header">
+                <i class="fas fa-save me-2 text-accent"></i>Save & Export
+              </div>
+              <div class="card-body d-grid gap-2">
+                <button type="submit" class="btn btn-outline-primary"
+                        onclick="prepareSubmit('save')">
+                  <i class="fas fa-save me-2"></i>Save Draft
+                </button>
+                <button type="submit" class="btn btn-success"
+                        onclick="prepareSubmit('finalize')">
+                  <i class="fas fa-check-circle me-2"></i>Finalize Document
+                </button>
+                <hr class="my-1"/>
+                <a href="{{ url_for('documents.download_pdf', doc_id=doc.id) }}"
+                   class="btn btn-danger">
+                  <i class="fas fa-file-pdf me-2"></i>Download PDF
+                </a>
+                <a href="{{ url_for('documents.download_docx', doc_id=doc.id) }}"
+                   class="btn" style="background:#2b5be8;color:#fff;">
+                  <i class="fas fa-file-word me-2"></i>Download DOCX
+                </a>
+              </div>
+            </div>
+
+            <!-- Document Info -->
+            <div class="card mb-3 fade-in-up delay-1">
+              <div class="card-header">
+                <i class="fas fa-info-circle me-2 text-accent"></i>Document Info
+              </div>
+              <div class="card-body">
+                <div class="small">
+                  <div class="mb-2"><span class="text-muted">ID:</span>
+                    <span class="fw-600 ms-1">LEXREG-{{ '%05d' % doc.id }}</span></div>
+                  <div class="mb-2"><span class="text-muted">Status:</span>
+                    <span class="badge bg-{{ doc.status_badge() }}-subtle text-{{ doc.status_badge() }} ms-1">{{ doc.status.title() }}</span></div>
+                  <div class="mb-2"><span class="text-muted">Template:</span>
+                    <span class="fw-600 ms-1">{{ doc.template.name if doc.template else 'Custom' }}</span></div>
+                  <div class="mb-2"><span class="text-muted">Created:</span>
+                    <span class="ms-1">{{ doc.created_at.strftime('%d %b %Y') }}</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- NLP Results -->
+            <div class="card fade-in-up delay-2" id="nlpCard" style="display:none;">
+              <div class="card-header">
+                <i class="fas fa-brain me-2 text-accent"></i>NLP Analysis
+              </div>
+              <div class="card-body" id="nlpResults" style="font-size:13px;"></div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+<script>
+function fmt(cmd, val) {
+  document.execCommand(cmd, false, val || null);
+  document.getElementById('editor').focus();
+}
+
+function insertTable() {
+  const html = `<table border="1" style="width:100%;border-collapse:collapse;">
+    <tr><th style="padding:8px;background:#0d1b4b;color:#fff;">Column 1</th>
+        <th style="padding:8px;background:#0d1b4b;color:#fff;">Column 2</th>
+        <th style="padding:8px;background:#0d1b4b;color:#fff;">Column 3</th></tr>
+    <tr><td style="padding:8px;">Data 1</td><td style="padding:8px;">Data 2</td><td style="padding:8px;">Data 3</td></tr>
+  </table><p></p>`;
+  document.execCommand('insertHTML', false, html);
+}
+
+function insertHR() {
+  document.execCommand('insertHTML', false, '<hr/><p></p>');
+}
+
+function prepareSubmit(action) {
+  document.getElementById('formAction').value     = action;
+  document.getElementById('contentInput').value   = document.getElementById('editor').innerHTML;
+}
+
+async function analyzeText() {
+  const text = document.getElementById('editor').innerText;
+  if (!text.trim()) return;
+  const card = document.getElementById('nlpCard');
+  const results = document.getElementById('nlpResults');
+  results.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin text-accent"></i> Analyzing…</div>';
+  card.style.display = 'block';
+  try {
+    const csrfEl = document.querySelector('[name=csrf_token]');
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfEl ? csrfEl.value : (csrfMeta ? csrfMeta.getAttribute('content') : '');
+    const r = await fetch('/api/nlp/analyze', {
+      method:'POST',
+      headers:{'Content-Type':'application/json',
+               'X-CSRFToken': csrfToken},
+      body: JSON.stringify({text: text.substring(0, 2000)})
+    });
+    const data = await r.json();
+    let html = '';
+    if (data.summary) {
+      html += `<div class="mb-3"><div class="fw-700 mb-1 text-accent">Summary</div>
+               <div class="small text-muted">${data.summary}</div></div>`;
+    }
+    if (data.keywords?.length) {
+      html += `<div class="mb-3"><div class="fw-700 mb-1 text-accent">Keywords</div>
+               <div class="d-flex flex-wrap gap-1">
+               ${data.keywords.map(k=>`<span class="badge bg-primary-subtle text-primary">${k}</span>`).join('')}
+               </div></div>`;
+    }
+    if (data.entities) {
+      const ent = data.entities;
+      html += `<div><div class="fw-700 mb-1 text-accent">Entities</div>`;
+      if (ent.gst?.length)     html += `<div class="small mb-1"><b>GST:</b> ${ent.gst.join(', ')}</div>`;
+      if (ent.pan?.length)     html += `<div class="small mb-1"><b>PAN:</b> ${ent.pan.join(', ')}</div>`;
+      if (ent.dates?.length)   html += `<div class="small mb-1"><b>Dates:</b> ${ent.dates.join(', ')}</div>`;
+      html += '</div>';
+    }
+    results.innerHTML = html || '<div class="text-muted small">No entities found.</div>';
+  } catch(e) {
+    results.innerHTML = '<div class="text-danger small">Analysis failed.</div>';
+  }
+}
+</script>
+{% endblock %}

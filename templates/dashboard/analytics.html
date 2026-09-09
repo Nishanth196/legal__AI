@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Analytics – LexReg AI{% endblock %}
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet"/>
+{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Analytics{% endblock %}
+
+    <div class="page-content">
+      <div class="row g-4">
+
+        <!-- Monthly Documents Chart -->
+        <div class="col-lg-8">
+          <div class="card chart-card fade-in-up">
+            <div class="card-header">
+              <i class="fas fa-chart-line me-2 text-accent"></i>Monthly Document Generation
+            </div>
+            <div class="card-body">
+              <canvas id="monthlyChart" height="100"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Template Usage Doughnut -->
+        <div class="col-lg-4">
+          <div class="card chart-card fade-in-up delay-1">
+            <div class="card-header">
+              <i class="fas fa-chart-pie me-2 text-accent"></i>Template Usage
+            </div>
+            <div class="card-body">
+              <canvas id="templateChart" height="180"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="col-12 fade-in-up delay-2">
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-table me-2 text-accent"></i>Usage Breakdown
+            </div>
+            <div class="card-body">
+              {% if template_usage %}
+              <div class="row g-3">
+                {% for name, count in template_usage %}
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between small mb-1">
+                    <span class="fw-600">{{ name }}</span>
+                    <span class="text-accent">{{ count }}</span>
+                  </div>
+                  <div class="progress">
+                    <div class="progress-bar" style="width:{{ (count / (template_usage[0][1] or 1) * 100)|int }}%"></div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="empty-state py-4">
+                <i class="fas fa-chart-bar"></i>
+                <p>No data yet – generate some documents first!</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+const monthlyData  = {{ monthly | tojson }};
+const templateData = {{ template_usage | tojson }};
+
+// Monthly Chart
+const mCtx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(mCtx, {
+  type: 'line',
+  data: {
+    labels:   monthlyData.map(d => d[0]),
+    datasets: [{
+      label:           'Documents Generated',
+      data:            monthlyData.map(d => d[1]),
+      borderColor:     '#1e90ff',
+      backgroundColor: 'rgba(30,144,255,.1)',
+      fill:            true,
+      tension:         0.4,
+      pointBackgroundColor: '#1e90ff',
+      pointRadius:     5,
+    }]
+  },
+  options: {
+    responsive:  true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.06)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Template Doughnut
+if (templateData.length) {
+  const tCtx = document.getElementById('templateChart').getContext('2d');
+  new Chart(tCtx, {
+    type: 'doughnut',
+    data: {
+      labels:   templateData.map(d => d[0]),
+      datasets: [{
+        data:            templateData.map(d => d[1]),
+        backgroundColor: [
+          '#1e90ff','#0d1b4b','#00c896','#ffb830',
+          '#6c5ce7','#e17055','#00cec9','#fd79a8'
+        ],
+        borderWidth: 2,
+        borderColor: '#fff',
+      }]
+    },
+    options: {
+      responsive:  true,
+      plugins: { legend: { position: 'bottom', labels: { padding: 16, font: { size: 11 } } } },
+      cutout: '65%',
+    }
+  });
+}
+</script>
+{% endblock %}

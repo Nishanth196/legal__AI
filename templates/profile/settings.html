@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block title %}Settings – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Settings{% endblock %}
+
+    <div class="page-content">
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} mb-4">{{ msg }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <form method="POST" id="settingsForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+        <div class="row g-4">
+          <!-- API Settings -->
+          <div class="col-lg-7">
+            <div class="card fade-in-up">
+              <div class="card-header">
+                <i class="fas fa-key me-2 text-accent"></i>AI API Configuration
+              </div>
+              <div class="card-body">
+                <div class="alert" style="background:#fff8e1;border:1px solid #ffe082;border-radius:12px;color:#7b6000;" role="alert">
+                  <i class="fas fa-info-circle me-2"></i>
+                  <strong>Gemini API Key</strong> is required for AI document generation and chatbot features.
+                  Get yours free at <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a>.
+                </div>
+                <div class="mb-4">
+                  <label class="form-label">Google Gemini API Key</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                    <input type="password" class="form-control" name="gemini_api_key"
+                           id="geminiKey"
+                           value="{{ settings.get('gemini_api_key', '') }}"
+                           placeholder="AIza…"/>
+                    <button type="button" class="btn btn-outline-secondary"
+                            onclick="toggleApiKey()">
+                      <i class="fas fa-eye" id="apiEyeIcon"></i>
+                    </button>
+                  </div>
+                  <div class="form-text">
+                    <i class="fas fa-lock me-1 text-success"></i>
+                    Stored securely in your account settings
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">AI Model</label>
+                  <select class="form-select" name="ai_model" disabled>
+                    <option selected>gemini-1.5-flash (Recommended)</option>
+                    <option>gemini-1.5-pro</option>
+                  </select>
+                  <div class="form-text">gemini-1.5-flash provides the best speed for document generation</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mt-4 fade-in-up delay-1">
+              <div class="card-header">
+                <i class="fas fa-palette me-2 text-accent"></i>Display Preferences
+              </div>
+              <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <div>
+                    <div class="fw-600">Dark Mode</div>
+                    <div class="text-muted small">Enable dark theme for reduced eye strain</div>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch"
+                           name="dark_mode" value="1" id="darkModeToggle"
+                           {{ 'checked' if settings.get('dark_mode') == '1' }}
+                           onchange="document.documentElement.setAttribute('data-theme', this.checked ? 'dark' : 'light')"/>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <div class="fw-600">Email Notifications</div>
+                    <div class="text-muted small">Receive email when documents are ready</div>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch"
+                           name="email_notifs" value="1" id="emailNotifs" checked/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-2"></i>Save Settings
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Panel: Info -->
+          <div class="col-lg-5">
+            <div class="card fade-in-up delay-2">
+              <div class="card-header">
+                <i class="fas fa-info-circle me-2 text-accent"></i>Account Information
+              </div>
+              <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                  <div style="width:60px;height:60px;background:linear-gradient(135deg,#1e90ff,#0d1b4b);border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;font-weight:700;">
+                    {{ current_user.name[0].upper() }}
+                  </div>
+                  <div>
+                    <div class="fw-700 fs-6">{{ current_user.name }}</div>
+                    <div class="text-muted small">{{ current_user.email }}</div>
+                    <span class="badge bg-primary-subtle text-primary">{{ current_user.role.title() }}</span>
+                  </div>
+                </div>
+                <hr/>
+                <div class="row g-2 text-center">
+                  <div class="col-6">
+                    <div class="fw-700 fs-4 text-accent">{{ current_user.documents.count() }}</div>
+                    <div class="small text-muted">Total Docs</div>
+                  </div>
+                  <div class="col-6">
+                    <div class="fw-700 fs-4 text-success">
+                      {{ current_user.documents.filter_by(status='completed').count() }}
+                    </div>
+                    <div class="small text-muted">Completed</div>
+                  </div>
+                </div>
+                <hr/>
+                <div class="small text-muted">
+                  <div class="mb-1">
+                    <i class="fas fa-calendar me-2"></i>
+                    Member since {{ current_user.created_at.strftime('%B %Y') }}
+                  </div>
+                  <div>
+                    <i class="fas fa-clock me-2"></i>
+                    Last login: {{ current_user.last_login.strftime('%d %b %Y, %H:%M') if current_user.last_login else 'Now' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="card mt-4 fade-in-up delay-3">
+              <div class="card-header">
+                <i class="fas fa-server me-2 text-accent"></i>System Status
+              </div>
+              <div class="card-body">
+                {% for service, status_ok in [('Flask Backend','ok'),('MySQL Database','ok'),('AI Engine', 'ok' if settings.get('gemini_api_key') else 'warn'),('PDF Generator','ok'),('DOCX Export','ok')] %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small">{{ service }}</span>
+                  <span class="badge {{ 'bg-success' if status_ok=='ok' else 'bg-warning text-dark' }}">
+                    <i class="fas {{ 'fa-check' if status_ok=='ok' else 'fa-exclamation' }} me-1"></i>
+                    {{ 'Active' if status_ok=='ok' else 'Key Needed' }}
+                  </span>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleApiKey() {
+  const inp = document.getElementById('geminiKey');
+  const icon = document.getElementById('apiEyeIcon');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  icon.classList.toggle('fa-eye');
+  icon.classList.toggle('fa-eye-slash');
+}
+</script>
+{% endblock %}

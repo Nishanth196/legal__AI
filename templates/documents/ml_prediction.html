@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}Prediction Comparison – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Step 2: AI Model Predictions{% endblock %}
+
+    <div class="page-content">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 fade-in-up">
+          
+          {% if error %}
+          <div class="alert alert-danger shadow-sm border-0">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i> Model Error</h5>
+            {% if model_err == "ML" %}
+              <p>No trained Machine Learning model found (model.pkl). Please train the model first.</p>
+              <a href="{{ url_for('ml.train') }}" class="btn btn-danger btn-sm mt-2">Go to ML Training Module</a>
+            {% elif model_err == "DL" %}
+              <p>No trained Deep Learning model found (dl_model.keras). Please train the model first.</p>
+              <a href="{{ url_for('dl.train') }}" class="btn btn-danger btn-sm mt-2">Go to DL Training Module</a>
+            {% else %}
+              <p>An error occurred while evaluating the predictions: {{ error_msg or 'Check logs for details.' }}</p>
+            {% endif %}
+          </div>
+          {% else %}
+          
+          <div class="row g-4">
+            <!-- ML Model Card -->
+            <div class="col-md-6">
+              <div class="card text-center h-100 border-0 shadow-sm {% if best_model == 'Random Forest' %}border-2 border-success{% endif %}" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85); transition: transform 0.2s;">
+                <div class="card-body p-4 d-flex flex-column align-items-center justify-content-between">
+                  <div>
+                    <div class="mb-3 text-primary">
+                      <i class="fas fa-brain fa-3x"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">Random Forest Model (ML)</h5>
+                    <p class="text-muted small">Decision tree ensemble baseline prediction</p>
+                    
+                    <div class="alert bg-light py-2 px-3 my-3 border border-light-subtle d-inline-block">
+                      <h4 class="mb-0 text-dark fw-bold" style="font-size: 1.35rem;">{{ predicted_doc_ml }}</h4>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <span class="badge {% if best_model == 'Random Forest' %}bg-success{% else %}bg-secondary{% endif %} px-3 py-2" style="font-size: 13px;">
+                      Confidence: {{ confidence_ml }}%
+                    </span>
+                    {% if best_model == 'Random Forest' %}
+                      <div class="text-success mt-2 fw-bold small"><i class="fas fa-award me-1"></i> Best Prediction</div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- DL Model Card -->
+            <div class="col-md-6">
+              <div class="card text-center h-100 border-0 shadow-sm {% if best_model == 'Deep Learning' %}border-2 border-success{% endif %}" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85); transition: transform 0.2s;">
+                <div class="card-body p-4 d-flex flex-column align-items-center justify-content-between">
+                  <div>
+                    <div class="mb-3 text-info">
+                      <i class="fas fa-network-wired fa-3x"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">Neural Network Model (DL)</h5>
+                    <p class="text-muted small">Deep Multi-Layer Perceptron (MLP) prediction</p>
+                    
+                    <div class="alert bg-light py-2 px-3 my-3 border border-light-subtle d-inline-block">
+                      <h4 class="mb-0 text-dark fw-bold" style="font-size: 1.35rem;">{{ predicted_doc_dl }}</h4>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <span class="badge {% if best_model == 'Deep Learning' %}bg-success{% else %}bg-secondary{% endif %} px-3 py-2" style="font-size: 13px;">
+                      Confidence: {{ confidence_dl }}%
+                    </span>
+                    {% if best_model == 'Deep Learning' %}
+                      <div class="text-success mt-2 fw-bold small"><i class="fas fa-award me-1"></i> Best Prediction</div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Summary Banner & CTA -->
+            <div class="col-12 mt-4">
+              <div class="card border-0 shadow-sm bg-gradient bg-light text-center py-4 px-3" style="border-radius: 15px;">
+                <div class="card-body">
+                  <h4 class="fw-bold mb-2">Winning Recommendation</h4>
+                  <p class="text-muted mb-3">The model with the highest confidence score is selected automatically:</p>
+                  
+                  <div class="alert alert-success d-inline-block px-5 py-2 mb-4 border-0 shadow-xs" style="border-radius: 12px;">
+                    <h3 class="mb-0 text-success fw-bold">{{ best_doc }}</h3>
+                    <small class="text-success-emphasis">Predicted by {{ best_model }} ({{ best_conf }}% Confidence)</small>
+                  </div>
+                  
+                  <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-primary btn-lg px-5 py-3 shadow-sm" style="border-radius: 12px; font-weight: 600;">
+                      <i class="fas fa-magic me-2"></i>Generate AI Document
+                    </button>
+                  </form>
+                  
+                  <div class="mt-3">
+                    <a href="{{ url_for('documents.generate') }}" class="text-muted small text-decoration-none">
+                      <i class="fas fa-arrow-left me-1"></i> Change Company Details
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

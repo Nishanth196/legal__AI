@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}CSV ML Analysis – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}CSV ML Analysis (Train Model){% endblock %}
+
+    <div class="page-content">
+      <div class="row">
+        <!-- Upload Form -->
+        <div class="col-lg-5 mb-4 fade-in-up">
+          <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+              <i class="fas fa-upload me-2"></i>Upload Dataset
+            </div>
+            <div class="card-body">
+              <form method="POST" enctype="multipart/form-data" id="trainForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                
+                <div class="mb-4">
+                  <label class="form-label fw-bold">Select CSV Dataset</label>
+                  <input type="file" class="form-control" name="dataset" accept=".csv" required>
+                  <div class="form-text">Upload a dataset with columns: Employee_ID, Employee_Name, Business_Type, Company_Name, State, Registration_Type, Annual_Turnover_Lakhs, Required_Document. Maximum size 10MB.</div>
+                </div>
+                
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary btn-lg" id="trainBtn">
+                    <i class="fas fa-brain me-2"></i>Train Model
+                  </button>
+                </div>
+              </form>
+              
+              <!-- Loading State (Hidden by default) -->
+              <div id="loadingState" class="mt-4 text-center d-none">
+                <div class="spinner-border text-primary mb-3" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="fw-bold">Training Model...</h5>
+                <p class="text-muted small">Performing Data Cleaning, Label Encoding, Feature Selection, and training a Random Forest Classifier.</p>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 100%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Results -->
+        <div class="col-lg-7 mb-4 fade-in-up" style="animation-delay: 0.1s;">
+          <div class="card h-100">
+            <div class="card-header bg-success text-white">
+              <i class="fas fa-chart-line me-2"></i>Training Results
+            </div>
+            <div class="card-body">
+              {% if result %}
+                <div class="text-center mb-4">
+                  <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                  <h4 class="fw-bold text-success">Training Successful</h4>
+                  <p class="text-muted">Model saved successfully to <code>ml/model.pkl</code></p>
+                </div>
+                
+                <div class="row text-center g-3">
+                  <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border">
+                      <div class="text-muted small mb-1">Accuracy</div>
+                      <h3 class="fw-bold text-primary mb-0">{{ (result.accuracy * 100)|round(2) }}%</h3>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border">
+                      <div class="text-muted small mb-1">Precision</div>
+                      <h3 class="fw-bold text-info mb-0">{{ (result.precision * 100)|round(2) }}%</h3>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border">
+                      <div class="text-muted small mb-1">Recall</div>
+                      <h3 class="fw-bold text-warning mb-0">{{ (result.recall * 100)|round(2) }}%</h3>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border">
+                      <div class="text-muted small mb-1">F1 Score</div>
+                      <h3 class="fw-bold text-danger mb-0">{{ (result.f1_score * 100)|round(2) }}%</h3>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="mt-4 p-3 bg-light rounded border text-center">
+                  <div class="text-muted small">Training Time</div>
+                  <div class="fw-bold">{{ result.training_time|round(3) }} seconds</div>
+                </div>
+                
+              {% else %}
+                <div class="text-center text-muted p-5 d-flex flex-column align-items-center justify-content-center h-100">
+                  <i class="fas fa-chart-area fa-3x mb-3" style="opacity: 0.5;"></i>
+                  <h5>No Results Yet</h5>
+                  <p>Upload a dataset and click 'Train Model' to see metrics.</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('trainForm');
+    const btn = document.getElementById('trainBtn');
+    const loading = document.getElementById('loadingState');
+    
+    if(form) {
+        form.addEventListener('submit', function() {
+            btn.classList.add('d-none');
+            loading.classList.remove('d-none');
+        });
+    }
+});
+</script>
+{% endblock %}

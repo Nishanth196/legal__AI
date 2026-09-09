@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %}AI Legal Assistant – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}AI Legal Assistant{% endblock %}
+
+    <div class="page-content" style="padding-bottom:0;">
+
+      <div class="row g-4 h-100">
+        <!-- Chat Area -->
+        <div class="col-lg-8">
+          <div class="card" style="height:calc(100vh - 150px);display:flex;flex-direction:column;">
+            <!-- Chat Header -->
+            <div class="card-header d-flex align-items-center gap-3">
+              <div style="width:44px;height:44px;background:linear-gradient(135deg,#1e90ff,#0d1b4b);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;">
+                <i class="fas fa-robot"></i>
+              </div>
+              <div>
+                <div class="fw-700">LexReg Legal Assistant</div>
+                <div class="small text-muted d-flex align-items-center gap-1">
+                  <span style="width:8px;height:8px;background:#00c896;border-radius:50%;display:inline-block;"></span>
+                  Online &amp; Ready
+                </div>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="clearChat()">
+                <i class="fas fa-trash me-1"></i>Clear
+              </button>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-messages" id="chatMessages">
+              <!-- Welcome Message -->
+              <div class="d-flex gap-3">
+                <div style="width:36px;height:36px;background:linear-gradient(135deg,#1e90ff,#0d1b4b);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;">
+                  <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                  <div class="chat-bubble bot">
+                    <div class="fw-700 mb-2">👋 Hello, {{ current_user.name.split()[0] }}!</div>
+                    <p class="mb-2">I'm your <strong>LexReg AI Legal Assistant</strong>. I can help you with:</p>
+                    <ul class="mb-2 ps-3">
+                      <li>Explaining legal clauses & documents</li>
+                      <li>GST, PAN, TAN & tax compliance</li>
+                      <li>Company registration & MCA filings</li>
+                      <li>MSME, Startup India procedures</li>
+                      <li>Import/Export (IEC) licensing</li>
+                      <li>Employment & contract law</li>
+                    </ul>
+                    <p class="mb-0">How can I assist you today?</p>
+                  </div>
+                  <div class="text-muted mt-1" style="font-size:11px;">Just now</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Prompts -->
+            <div class="px-4 py-2 border-top" id="quickPrompts">
+              <div class="d-flex gap-2 flex-wrap">
+                {% set prompts = [
+                  'What is GST registration?',
+                  'How to register a Private Limited company?',
+                  'What is MSME registration?',
+                  'Explain NDA clauses',
+                  'What is IEC code?',
+                  'GST return filing process',
+                ] %}
+                {% for p in prompts %}
+                <button class="btn btn-sm btn-outline-secondary" style="border-radius:20px;font-size:12px;"
+                        onclick="sendQuick('{{ p }}')">{{ p }}</button>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Input Bar -->
+            <div class="chat-input-bar">
+              <input type="text" id="chatInput" class="form-control"
+                     placeholder="Ask any legal question…"
+                     onkeypress="if(event.key==='Enter') sendMessage()"/>
+              <button class="btn btn-primary" onclick="sendMessage()" id="sendBtn"
+                      style="border-radius:10px;width:46px;height:46px;padding:0;">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="col-lg-4">
+          <!-- Capabilities -->
+          <div class="card mb-3 fade-in-up">
+            <div class="card-header">
+              <i class="fas fa-star me-2 text-warning"></i>Capabilities
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                {% for cap in [
+                  ('fa-file-contract','Document Explanations'),
+                  ('fa-balance-scale','Legal Compliance Guidance'),
+                  ('fa-university','Regulatory Procedures'),
+                  ('fa-calculator','Tax & GST Queries'),
+                  ('fa-handshake','Contract Law'),
+                  ('fa-lightbulb','Document Recommendations'),
+                  ('fa-language','Clause Summarization'),
+                  ('fa-shield-alt','Compliance Checks'),
+                ] %}
+                <li class="d-flex align-items-center gap-3 mb-3">
+                  <div style="width:36px;height:36px;background:var(--bg);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--accent);">
+                    <i class="fas {{ cap[0] }}"></i>
+                  </div>
+                  <span class="small fw-600">{{ cap[1] }}</span>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Recent Queries -->
+          <div class="card fade-in-up delay-1">
+            <div class="card-header">
+              <i class="fas fa-history me-2 text-accent"></i>Recent Queries
+            </div>
+            <div class="card-body" id="recentQueries" style="max-height:200px;overflow-y:auto;">
+              <div class="text-muted small text-center">Loading history…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+{% endblock %}

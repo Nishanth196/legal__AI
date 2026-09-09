@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% block title %}Generate Document – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Generate Document{% endblock %}
+
+    <div class="page-content">
+
+      <!-- AI Recommendation Bar -->
+      <div class="card mb-4 fade-in-up" style="background:linear-gradient(135deg,#0d1b4b,#1e3a8a);border:none;color:#fff;">
+        <div class="card-body" style="padding:20px 24px;">
+          <div class="row align-items-center g-3">
+            <div class="col">
+              <div class="d-flex align-items-center gap-3">
+                <div style="width:44px;height:44px;background:rgba(255,255,255,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">
+                  <i class="fas fa-brain"></i>
+                </div>
+                <div>
+                  <div class="fw-700">AI Template Recommender</div>
+                  <div style="font-size:13px;opacity:.8;">Describe what you need and AI will suggest the best template</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-5">
+              <div class="input-group">
+                <input type="text" class="form-control" id="recommendInput"
+                       placeholder="e.g. I need a GST compliance document…"
+                       style="border-radius:10px 0 0 10px !important;"/>
+                <button class="btn" style="background:#1e90ff;color:#fff;border-radius:0 10px 10px 0;"
+                        onclick="getRecommendations()">
+                  <i class="fas fa-magic"></i> Suggest
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="recommendations" class="mt-3" style="display:none;">
+            <div class="fw-600 mb-2" style="font-size:13px;opacity:.8;">Recommended Templates:</div>
+            <div id="rec-list" class="d-flex gap-2 flex-wrap"></div>
+          </div>
+        </div>
+      </div>
+
+      <form method="POST" id="generateForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="template_id" id="selectedTemplateId"
+               value="{{ selected.id if selected else '' }}"/>
+
+        <div class="row g-4">
+          <!-- Template Selection -->
+          <div class="col-12">
+            <div class="card fade-in-up delay-1">
+              <div class="card-header">
+                <i class="fas fa-th me-2 text-accent"></i>
+                Step 1 – Select Document Template
+                {% if selected %}
+                <span class="badge bg-success ms-2">
+                  <i class="fas fa-check me-1"></i>{{ selected.name }} selected
+                </span>
+                {% endif %}
+              </div>
+              <div class="card-body">
+                <!-- Category Filter -->
+                <div class="d-flex gap-2 flex-wrap mb-4" id="catFilters">
+                  <button type="button" class="btn btn-sm btn-primary cat-filter" data-cat="">All</button>
+                  {% for cat in ['compliance','license','corporate','agreement','policy','hr','regulatory','tax'] %}
+                  <button type="button" class="btn btn-sm btn-outline-secondary cat-filter"
+                          data-cat="{{ cat }}">{{ cat.title() }}</button>
+                  {% endfor %}
+                </div>
+
+                <div class="row g-3" id="templateGrid">
+                  {% for tpl in templates %}
+                  <div class="col-xl-3 col-lg-4 col-sm-6 tpl-item" data-cat="{{ tpl.category }}">
+                    <div class="template-card {{ 'selected' if selected and selected.id == tpl.id else '' }}"
+                         data-id="{{ tpl.id }}" data-name="{{ tpl.name }}"
+                         onclick="selectTemplate({{ tpl.id }}, '{{ tpl.name }}')">
+                      <div class="tpl-icon"><i class="fas {{ tpl.get_icon() }}"></i></div>
+                      <div class="tpl-name">{{ tpl.name }}</div>
+                      <div class="tpl-cat">{{ tpl.category.title() }}</div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Details -->
+          <div class="col-lg-8">
+            <div class="card fade-in-up delay-2">
+              <div class="card-header">
+                <i class="fas fa-pencil-alt me-2 text-accent"></i>Step 2 – Document Details
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label">Custom Document Title <span class="text-muted">(optional)</span></label>
+                  <input type="text" class="form-control" name="title" id="docTitle"
+                         placeholder="Leave blank to auto-generate"/>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Additional Information / Special Requirements</label>
+                  <textarea class="form-control" name="extra_info" rows="5"
+                            placeholder="Describe any specific clauses, dates, parties, or special requirements you need in this document…"></textarea>
+                  <div class="form-text">The AI will use your company profile + this info to generate the document</div>
+                </div>
+
+                {% if current_user.profile %}
+                <div class="alert" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="fas fa-building text-accent"></i>
+                    <strong class="small">Company Profile (will be used in document)</strong>
+                  </div>
+                  <div class="row g-2">
+                    <div class="col-sm-6 small text-muted">
+                      <strong>Company:</strong> {{ current_user.profile.company_name }}
+                    </div>
+                    <div class="col-sm-6 small text-muted">
+                      <strong>GST:</strong> {{ current_user.profile.gst_number }}
+                    </div>
+                    <div class="col-sm-6 small text-muted">
+                      <strong>PAN:</strong> {{ current_user.profile.pan_number }}
+                    </div>
+                    <div class="col-sm-6 small text-muted">
+                      <strong>Owner:</strong> {{ current_user.profile.owner_name }}
+                    </div>
+                  </div>
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  <strong>No company profile found.</strong>
+                  <a href="{{ url_for('profile.company') }}">Set up your company profile</a> for better document generation.
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions Panel -->
+          <div class="col-lg-4">
+            <div class="card fade-in-up delay-3">
+              <div class="card-header">
+                <i class="fas fa-rocket me-2 text-accent"></i>Step 3 – Generate
+              </div>
+              <div class="card-body">
+                <div class="mb-3 p-3" style="background:var(--surface2);border-radius:12px;border:1px dashed var(--border);">
+                  <div class="text-muted small mb-1">Selected Template:</div>
+                  <div class="fw-700" id="selectedName">
+                    {% if selected %}{{ selected.name }}{% else %}None selected{% endif %}
+                  </div>
+                </div>
+
+                <ul class="list-unstyled small text-muted mb-4">
+                  <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>AI-powered content generation</li>
+                  <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Legal structure & clauses</li>
+                  <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Company info auto-filled</li>
+                  <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>PDF & DOCX export ready</li>
+                </ul>
+
+                <button type="submit" class="btn btn-primary w-100 py-3" id="genBtn"
+                        onclick="showLoader()">
+                  <i class="fas fa-magic me-2"></i>Generate with AI
+                </button>
+                <div class="text-center mt-2 text-muted" style="font-size:11px;">
+                  Typically takes 10–30 seconds
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loader-overlay" id="loaderOverlay" style="display:none;">
+  <div class="loader-ring"></div>
+  <div class="loader-text">
+    <div class="fw-700 fs-5">AI is generating your document…</div>
+    <div class="small opacity-75 mt-1" id="loaderStep">Analyzing template requirements…</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedId = '{{ selected.id if selected else "" }}';
+
+function selectTemplate(id, name) {
+  document.getElementById('selectedTemplateId').value = id;
+  document.getElementById('selectedName').textContent = name;
+  document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`.template-card[data-id="${id}"]`).classList.add('selected');
+  selectedId = id;
+  // Auto-fill title suggestion
+  const titleInput = document.getElementById('docTitle');
+  if (!titleInput.value) titleInput.placeholder = name + ' – NovaSphere Technologies';
+}
+
+// Category filter
+document.querySelectorAll('.cat-filter').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const cat = this.dataset.cat;
+    document.querySelectorAll('.cat-filter').forEach(b => {
+      b.className = 'btn btn-sm btn-outline-secondary cat-filter';
+    });
+    this.className = 'btn btn-sm btn-primary cat-filter';
+    document.querySelectorAll('.tpl-item').forEach(item => {
+      item.style.display = (!cat || item.dataset.cat === cat) ? '' : 'none';
+    });
+  });
+});
+
+function showLoader() {
+  if (!selectedId) { alert('Please select a template first.'); return false; }
+  const overlay = document.getElementById('loaderOverlay');
+  overlay.style.display = 'flex';
+  const steps = [
+    'Analyzing template requirements…',
+    'Loading company profile data…',
+    'Generating legal clauses…',
+    'Structuring document sections…',
+    'Finalizing document content…',
+  ];
+  let i = 0;
+  const stepEl = document.getElementById('loaderStep');
+  setInterval(() => {
+    stepEl.textContent = steps[i % steps.length];
+    i++;
+  }, 2500);
+}
+
+async function getRecommendations() {
+  const q = document.getElementById('recommendInput').value.trim();
+  if (!q) return;
+  const btn = event.target.closest('button');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  try {
+    const r = await fetch('/api/recommend', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken': getCSRF()},
+      body: JSON.stringify({description: q})
+    });
+    const data = await r.json();
+    const list = document.getElementById('rec-list');
+    list.innerHTML = '';
+    (data.recommendations || []).forEach(name => {
+      const btn_ = document.createElement('button');
+      btn_.type = 'button';
+      btn_.className = 'btn btn-sm';
+      btn_.style.background = 'rgba(255,255,255,.15)';
+      btn_.style.color = '#fff';
+      btn_.style.borderRadius = '20px';
+      btn_.textContent = name;
+      btn_.onclick = () => {
+        // Find and select matching template
+        document.querySelectorAll('.template-card').forEach(card => {
+          if (card.dataset.name === name) {
+            card.click();
+            card.scrollIntoView({behavior:'smooth', block:'center'});
+          }
+        });
+      };
+      list.appendChild(btn_);
+    });
+    document.getElementById('recommendations').style.display = 'block';
+  } catch(e) {}
+  btn.innerHTML = '<i class="fas fa-magic"></i> Suggest';
+}
+
+function getCSRF() {
+  return document.querySelector('[name=csrf_token]').value;
+}
+</script>
+{% endblock %}

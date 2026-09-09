@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %}Model Comparison – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Model Comparison: Random Forest vs Neural Network{% endblock %}
+
+    <div class="page-content">
+      {% if no_data %}
+        <div class="row justify-content-center">
+          <div class="col-lg-6 mt-5 fade-in-up">
+            <div class="card text-center p-5 shadow-sm border-0">
+              <div class="card-body">
+                <i class="fas fa-balance-scale fa-4x text-muted mb-3" style="opacity: 0.4;"></i>
+                <h4 class="fw-bold">No Comparison Data Found</h4>
+                <p class="text-muted">You must train the Deep Learning model first to generate evaluation metrics and curves.</p>
+                <a href="{{ url_for('dl.train') }}" class="btn btn-primary mt-3">
+                  <i class="fas fa-network-wired me-2"></i>Train Deep Learning Model
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="row">
+          <!-- Metric Tables -->
+          <div class="col-lg-12 mb-4 fade-in-up">
+            <div class="card shadow-sm border-0" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85);">
+              <div class="card-header bg-gradient bg-dark text-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="fas fa-table me-2"></i>Performance Summary Metrics</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-bordered table-hover align-middle mb-0">
+                    <thead class="table-light text-center">
+                      <tr>
+                        <th>Metric</th>
+                        <th>Random Forest (ML Baseline)</th>
+                        <th>Neural Network (MLP DL)</th>
+                        <th>Difference</th>
+                        <th>Winner</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="fw-bold">Accuracy</td>
+                        <td class="text-center">{{ (data.rf.accuracy * 100)|round(2) }}%</td>
+                        <td class="text-center">{{ (data.dl.accuracy * 100)|round(2) }}%</td>
+                        <td class="text-center fw-semibold {% if data.dl.accuracy > data.rf.accuracy %}text-success{% else %}text-danger{% endif %}">
+                          {{ (((data.dl.accuracy - data.rf.accuracy) * 100)|abs)|round(2) }}%
+                        </td>
+                        <td class="text-center">
+                          {% if data.dl.accuracy > data.rf.accuracy %}
+                            <span class="badge bg-success">Neural Network (DL)</span>
+                          {% else %}
+                            <span class="badge bg-primary">Random Forest (ML)</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold">Precision</td>
+                        <td class="text-center">{{ (data.rf.precision * 100)|round(2) }}%</td>
+                        <td class="text-center">{{ (data.dl.precision * 100)|round(2) }}%</td>
+                        <td class="text-center fw-semibold {% if data.dl.precision > data.rf.precision %}text-success{% else %}text-danger{% endif %}">
+                          {{ (((data.dl.precision - data.rf.precision) * 100)|abs)|round(2) }}%
+                        </td>
+                        <td class="text-center">
+                          {% if data.dl.precision > data.rf.precision %}
+                            <span class="badge bg-success">Neural Network (DL)</span>
+                          {% else %}
+                            <span class="badge bg-primary">Random Forest (ML)</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold">Recall</td>
+                        <td class="text-center">{{ (data.rf.recall * 100)|round(2) }}%</td>
+                        <td class="text-center">{{ (data.dl.recall * 100)|round(2) }}%</td>
+                        <td class="text-center fw-semibold {% if data.dl.recall > data.rf.recall %}text-success{% else %}text-danger{% endif %}">
+                          {{ (((data.dl.recall - data.rf.recall) * 100)|abs)|round(2) }}%
+                        </td>
+                        <td class="text-center">
+                          {% if data.dl.recall > data.rf.recall %}
+                            <span class="badge bg-success">Neural Network (DL)</span>
+                          {% else %}
+                            <span class="badge bg-primary">Random Forest (ML)</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold">F1 Score</td>
+                        <td class="text-center">{{ (data.rf.f1_score * 100)|round(2) }}%</td>
+                        <td class="text-center">{{ (data.dl.f1_score * 100)|round(2) }}%</td>
+                        <td class="text-center fw-semibold {% if data.dl.f1_score > data.rf.f1_score %}text-success{% else %}text-danger{% endif %}">
+                          {{ (((data.dl.f1_score - data.rf.f1_score) * 100)|abs)|round(2) }}%
+                        </td>
+                        <td class="text-center">
+                          {% if data.dl.f1_score > data.rf.f1_score %}
+                            <span class="badge bg-success">Neural Network (DL)</span>
+                          {% else %}
+                            <span class="badge bg-primary">Random Forest (ML)</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold">Training Time</td>
+                        <td class="text-center">{{ data.rf.training_time|round(3) }}s</td>
+                        <td class="text-center">{{ data.dl.training_time|round(3) }}s</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">
+                          {% if data.dl.training_time < data.rf.training_time %}
+                            <span class="badge bg-success">Neural Network (DL)</span>
+                          {% else %}
+                            <span class="badge bg-primary">Random Forest (ML)</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold">Prediction Latency (avg/row)</td>
+                        <td class="text-center">{{ (data.rf.prediction_time * 1000)|round(4) }} ms</td>
+                        <td class="text-center">{{ (data.dl.prediction_time * 1000)|round(4) }} ms</td>
+                        <td class="text-center">-</td>
+                        <td class="text-center">
+                          {% if data.dl.prediction_time < data.rf.prediction_time %}
+                            <span class="badge bg-success">Neural Network (DL)</span>
+                          {% else %}
+                            <span class="badge bg-primary">Random Forest (ML)</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Visualizations -->
+          <div class="col-lg-6 mb-4 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="card h-100 shadow-sm border-0" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85);">
+              <div class="card-header bg-gradient bg-primary text-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="fas fa-chart-bar me-2"></i>ML vs DL Metrics comparison</h5>
+              </div>
+              <div class="card-body text-center p-3">
+                <img src="/static/charts/comparison_metrics.png?v={{ now.timestamp() if now else 1 }}" alt="Metrics Comparison" class="img-fluid rounded shadow-xs" style="max-height: 380px; width: auto;">
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-6 mb-4 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="card h-100 shadow-sm border-0" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85);">
+              <div class="card-header bg-gradient bg-success text-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="fas fa-chart-line me-2"></i>Neural Network Accuracy Curve</h5>
+              </div>
+              <div class="card-body text-center p-3">
+                <img src="/static/charts/dl_accuracy.png?v={{ now.timestamp() if now else 1 }}" alt="Accuracy Curve" class="img-fluid rounded shadow-xs" style="max-height: 380px; width: auto;">
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-6 mb-4 fade-in-up" style="animation-delay: 0.3s;">
+            <div class="card h-100 shadow-sm border-0" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.85);">
+              <div class="card-header bg-gradient bg-warning text-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="fas fa-heartbeat me-2"></i>Neural Network Loss Curve</h5>
+              </div>
+              <div class="card-body text-center p-3">
+                <img src="/static/charts/dl_loss.png?v={{ now.timestamp() if now else 1 }}" alt="Loss Curve" class="img-fluid rounded shadow-xs" style="max-height: 380px; width: auto;">
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

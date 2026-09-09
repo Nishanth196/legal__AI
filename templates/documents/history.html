@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}My Documents – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}My Documents{% endblock %}
+
+    <div class="page-content">
+
+      <!-- Search & Filter Bar -->
+      <div class="card mb-4 fade-in-up">
+        <div class="card-body py-3">
+          <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-5">
+              <label class="form-label small fw-600">Search Documents</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" name="search"
+                       value="{{ search }}" placeholder="Search by title…"/>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-600">Filter by Status</label>
+              <select class="form-select" name="status">
+                <option value="">All Status</option>
+                <option value="draft"     {{ 'selected' if status=='draft' }}>Draft</option>
+                <option value="generated" {{ 'selected' if status=='generated' }}>Generated</option>
+                <option value="completed" {{ 'selected' if status=='completed' }}>Completed</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-filter me-1"></i>Filter
+              </button>
+            </div>
+            <div class="col-md-2">
+              <a href="{{ url_for('documents.generate') }}" class="btn btn-success w-100">
+                <i class="fas fa-plus me-1"></i>New Doc
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Documents Table -->
+      <div class="card fade-in-up delay-1">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="fas fa-folder-open me-2 text-accent"></i>Document History</span>
+          <span class="badge bg-primary">{{ docs.total }} documents</span>
+        </div>
+
+        {% if docs.items %}
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Template</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Last Updated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for doc in docs.items %}
+              <tr>
+                <td class="text-muted small">LEXREG-{{ '%05d' % doc.id }}</td>
+                <td>
+                  <div class="fw-600 small">{{ doc.title[:55] }}{% if doc.title|length > 55 %}…{% endif %}</div>
+                </td>
+                <td class="small text-muted">
+                  {{ doc.template.name if doc.template else '—' }}
+                </td>
+                <td>
+                  <span class="badge badge-status bg-{{ doc.status_badge() }}-subtle text-{{ doc.status_badge() }} border border-{{ doc.status_badge() }}-subtle">
+                    {{ doc.status.title() }}
+                  </span>
+                </td>
+                <td class="small text-muted">{{ doc.created_at.strftime('%d %b %Y') }}</td>
+                <td class="small text-muted">{{ doc.updated_at.strftime('%d %b %Y, %H:%M') }}</td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <a href="{{ url_for('documents.editor', doc_id=doc.id) }}"
+                       class="btn btn-icon btn-sm btn-outline-primary" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{{ url_for('documents.download_pdf', doc_id=doc.id) }}"
+                       class="btn btn-icon btn-sm btn-outline-danger" title="PDF">
+                      <i class="fas fa-file-pdf"></i>
+                    </a>
+                    <a href="{{ url_for('documents.download_docx', doc_id=doc.id) }}"
+                       class="btn btn-icon btn-sm btn-outline-primary" title="DOCX"
+                       style="border-color:#2b5be8;color:#2b5be8;">
+                      <i class="fas fa-file-word"></i>
+                    </a>
+                    <form method="POST" action="{{ url_for('documents.delete', doc_id=doc.id) }}"
+                          style="display:inline;"
+                          onsubmit="return confirm('Delete this document?')">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                      <button type="submit" class="btn btn-icon btn-sm btn-outline-danger" title="Delete">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if docs.pages > 1 %}
+        <div class="card-body border-top">
+          <nav>
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+              {% if docs.has_prev %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ docs.prev_num }}&search={{ search }}&status={{ status }}">
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              </li>
+              {% endif %}
+              {% for p in docs.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if p %}
+                <li class="page-item {{ 'active' if p == docs.page }}">
+                  <a class="page-link" href="?page={{ p }}&search={{ search }}&status={{ status }}">{{ p }}</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+              {% endfor %}
+              {% if docs.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ docs.next_num }}&search={{ search }}&status={{ status }}">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">
+          <i class="fas fa-folder-open"></i>
+          <h5 class="fw-700">No documents found</h5>
+          <p class="text-muted">{% if search %}No results for "{{ search }}"{% else %}Start generating your first legal document!{% endif %}</p>
+          <a href="{{ url_for('documents.generate') }}" class="btn btn-primary">
+            <i class="fas fa-magic me-2"></i>Generate Document
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

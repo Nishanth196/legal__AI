@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Document Templates – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Document Templates{% endblock %}
+
+    <div class="page-content">
+
+      <!-- Category filters -->
+      <div class="d-flex gap-2 flex-wrap mb-4 fade-in-up align-items-center w-100">
+        <a href="{{ url_for('documents.templates') }}"
+           class="btn btn-sm {{ 'btn-primary' if not selected_category else 'btn-outline-secondary' }}">
+          All Templates
+        </a>
+        {% for cat in categories %}
+        <a href="{{ url_for('documents.templates', category=cat) }}"
+           class="btn btn-sm {{ 'btn-primary' if selected_category==cat else 'btn-outline-secondary' }}">
+          {{ cat.title() }}
+        </a>
+        {% endfor %}
+        <a href="{{ url_for('documents.link_csv') }}" class="btn btn-sm btn-success ms-md-auto">
+          <i class="fas fa-file-csv me-1"></i>Link CSV via ML
+        </a>
+      </div>
+
+      <div class="row g-3">
+        {% for tpl in templates %}
+        <div class="col-xl-3 col-lg-4 col-md-6 fade-in-up">
+          <div class="template-card h-100">
+            <div class="tpl-icon"><i class="fas {{ tpl.get_icon() }}"></i></div>
+            <div class="tpl-name">{{ tpl.name }}</div>
+            <div class="tpl-cat mb-3">{{ tpl.category.title() }}</div>
+            <a href="{{ url_for('documents.generate', template_id=tpl.id) }}"
+               class="btn btn-primary btn-sm w-100">
+              <i class="fas fa-magic me-1"></i>Generate
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

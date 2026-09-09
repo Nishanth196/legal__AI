@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard – LexReg AI{% endblock %}
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet"/>
+{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Dashboard{% endblock %}
+
+    <div class="page-content">
+
+      <!-- Welcome Banner -->
+      <div class="card mb-4 fade-in-up" style="background:linear-gradient(135deg,#0d1b4b,#1e3a8a);border:none;color:#fff;">
+        <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3" style="padding:28px;">
+          <div>
+            <h2 class="mb-1" style="font-size:24px;font-weight:800;">
+              Good {{ 'Morning' if now.hour < 12 else ('Afternoon' if now.hour < 17 else 'Evening') }},
+
+              {{ current_user.name.split()[0] }}! 👋
+            </h2>
+            <p class="mb-2" style="opacity:.8;font-size:14px;">
+              Ready to generate your next legal document?
+            </p>
+            {% if current_user.profile %}
+            <span class="badge" style="background:rgba(255,255,255,.15);font-size:12px;padding:6px 12px;">
+              <i class="fas fa-building me-1"></i>{{ current_user.profile.company_name }}
+            </span>
+            {% endif %}
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ url_for('documents.link_csv') }}" class="btn btn-outline-light" style="padding:12px 28px;border-radius:12px;font-weight:600;white-space:nowrap;">
+              <i class="fas fa-file-csv me-2"></i>Link CSV via ML
+            </a>
+            <a href="{{ url_for('documents.generate') }}" class="btn" style="background:#1e90ff;color:#fff;padding:12px 28px;border-radius:12px;font-weight:600;white-space:nowrap;">
+              <i class="fas fa-magic me-2"></i>Generate Document
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-sm-6 fade-in-up delay-1">
+          <div class="stat-card stat-blue">
+            <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+            <div class="stat-value">{{ total_docs }}</div>
+            <div class="stat-label">Total Documents</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 fade-in-up delay-2">
+          <div class="stat-card stat-sky">
+            <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+            <div class="stat-value">{{ draft_docs }}</div>
+            <div class="stat-label">Pending / Drafts</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 fade-in-up delay-3">
+          <div class="stat-card stat-green">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-value">{{ completed_docs }}</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 fade-in-up delay-4">
+          <div class="stat-card stat-purple">
+            <div class="stat-icon"><i class="fas fa-robot"></i></div>
+            <div class="stat-value">{{ generated_docs }}</div>
+            <div class="stat-label">AI Generated</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Recent Documents -->
+        <div class="col-lg-8">
+          <div class="card fade-in-up">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span><i class="fas fa-history me-2 text-accent"></i>Recent Documents</span>
+              <a href="{{ url_for('documents.history') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+              {% if recent_docs %}
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for doc in recent_docs %}
+                    <tr>
+                      <td>
+                        <div class="fw-600 small">{{ doc.title[:50] }}{% if doc.title|length > 50 %}…{% endif %}</div>
+                        <div class="text-muted" style="font-size:11px;">
+                          {{ doc.template.name if doc.template else 'Custom' }}
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge badge-status bg-{{ doc.status_badge() }}-subtle text-{{ doc.status_badge() }} border border-{{ doc.status_badge() }}-subtle">
+                          {{ doc.status.title() }}
+                        </span>
+                      </td>
+                      <td class="text-muted small">{{ doc.updated_at.strftime('%d %b %Y') }}</td>
+                      <td>
+                        <a href="{{ url_for('documents.editor', doc_id=doc.id) }}"
+                           class="btn btn-icon btn-outline-primary btn-sm" title="Edit">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{{ url_for('documents.download_pdf', doc_id=doc.id) }}"
+                           class="btn btn-icon btn-outline-danger btn-sm ms-1" title="PDF">
+                          <i class="fas fa-file-pdf"></i>
+                        </a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% else %}
+              <div class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <p class="fw-600">No documents yet</p>
+                <a href="{{ url_for('documents.generate') }}" class="btn btn-primary btn-sm">Generate First Document</a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+          <!-- Recent Activity -->
+          <div class="card mb-4 fade-in-up delay-2">
+            <div class="card-header">
+              <i class="fas fa-bolt me-2 text-warning"></i>Recent Activity
+            </div>
+            <div class="card-body py-0">
+              {% if activities %}
+                {% for act in activities %}
+                <div class="activity-item">
+                  <div class="activity-dot bg-{{ ['primary','success','info','warning'] | random }}-subtle text-{{ ['primary','success','info','warning'] | random }}">
+                    <i class="fas fa-{% if 'LOGIN' in act.action %}sign-in-alt{% elif 'GENERATE' in act.action %}magic{% elif 'DOWNLOAD' in act.action %}download{% else %}file{% endif %}"></i>
+                  </div>
+                  <div>
+                    <div class="fw-600" style="font-size:13px;">{{ act.action.replace('_',' ').title() }}</div>
+                    <div class="text-muted" style="font-size:11px;">{{ act.created_at.strftime('%d %b, %H:%M') }}</div>
+                  </div>
+                </div>
+                {% endfor %}
+              {% else %}
+              <div class="text-center py-4 text-muted small">No activity yet</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="card fade-in-up delay-3">
+            <div class="card-header">
+              <i class="fas fa-zap me-2 text-accent"></i>Quick Actions
+            </div>
+            <div class="card-body d-grid gap-2">
+              <a href="{{ url_for('documents.generate') }}" class="btn btn-primary">
+                <i class="fas fa-magic me-2"></i>Generate Document
+              </a>
+              <a href="/chatbot" class="btn btn-outline-primary">
+                <i class="fas fa-robot me-2"></i>AI Legal Assistant
+              </a>
+              <a href="{{ url_for('profile.company') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-building me-2"></i>Update Company Profile
+              </a>
+              <a href="{{ url_for('dashboard.analytics') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-chart-bar me-2"></i>View Analytics
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Template Categories -->
+      <div class="mt-4">
+        <div class="section-title">
+          <i class="fas fa-th-large text-accent"></i>Document Templates
+        </div>
+        <div class="row g-3">
+          {% for tpl in templates[:8] %}
+          <div class="col-xl-3 col-lg-4 col-sm-6 fade-in-up">
+            <a href="{{ url_for('documents.generate', template_id=tpl.id) }}" class="text-decoration-none">
+              <div class="template-card">
+                <div class="tpl-icon">
+                  <i class="fas {{ tpl.get_icon() }}"></i>
+                </div>
+                <div class="tpl-name">{{ tpl.name }}</div>
+                <div class="tpl-cat">{{ tpl.category.title() }}</div>
+              </div>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="text-center mt-3">
+          <a href="{{ url_for('documents.templates') }}" class="btn btn-outline-primary">
+            <i class="fas fa-th me-2"></i>View All 20 Templates
+          </a>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+// Provide current time to Jinja
+const now = new Date();
+</script>
+{% endblock %}

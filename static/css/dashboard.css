@@ -1,0 +1,41 @@
+/* LexReg AI – Dashboard Layout Includes Sidebar Component */
+
+/* Used in dashboard/index.html for the sidebar template partial */
+.sidebar-user {
+  padding: 16px 20px;
+  margin: 8px 12px;
+  background: rgba(255,255,255,.08);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-user-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e90ff, #4da8ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.sidebar-user-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-role {
+  font-size: 11px;
+  color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}

@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block title %}Link CSV via ML – LexReg AI{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+  {% include '_sidebar.html' %}
+  <div class="main-content">
+    {% include '_topbar.html' %}
+    {% block page_title %}Link CSV via ML{% endblock %}
+
+    <div class="page-content">
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show mb-4">
+          {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+      {% endwith %}
+
+      <div class="row g-4">
+        <!-- Upload Card -->
+        <div class="col-lg-4">
+          <div class="card fade-in-up">
+            <div class="card-header">
+              <i class="fas fa-file-csv me-2 text-accent"></i>Upload CSV File
+            </div>
+            <div class="card-body">
+              <p class="small text-muted mb-4">
+                Upload a CSV file containing your company's document requirements or business needs. The system will use Machine Learning and NLP to analyze your data and recommend the exact document template needed.
+              </p>
+              <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="mb-4">
+                  <label class="form-label fw-600">Choose CSV File</label>
+                  <input type="file" class="form-control" name="csv_file" accept=".csv" required/>
+                  <div class="form-text small mt-1">Make sure it has a header row like "Requirement" or "Description".</div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2" onclick="showLoader()">
+                  <i class="fas fa-brain me-2"></i>Analyze with ML
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- ML Features Info Card -->
+          <div class="card mt-4 fade-in-up delay-1" style="background:linear-gradient(135deg,#0d1b4b,#1e3a8a);color:#fff;">
+            <div class="card-body">
+              <div class="fw-700 mb-3"><i class="fas fa-project-diagram me-2 text-accent"></i>ML Engine Capabilities</div>
+              <ul class="list-unstyled small mb-0" style="line-height:2;">
+                <li><i class="fas fa-check-circle text-success me-2"></i><strong>Template Classification:</strong> Maps requirements automatically.</li>
+                <li><i class="fas fa-check-circle text-success me-2"></i><strong>Smart Field Mapping:</strong> Detects description fields.</li>
+                <li><i class="fas fa-check-circle text-success me-2"></i><strong>LLM recommendations:</strong> Powered by Gemini NLP.</li>
+                <li><i class="fas fa-check-circle text-success me-2"></i><strong>Batch Link:</strong> Top 10 rows processed in real-time.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Card -->
+        <div class="col-lg-8">
+          <div class="card fade-in-up delay-2">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span><i class="fas fa-magic me-2 text-accent"></i>ML Classification Results</span>
+              {% if results %}
+              <span class="badge bg-success">{{ results|length }} Rows Classified</span>
+              {% endif %}
+            </div>
+            <div class="card-body">
+              {% if results %}
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Row Content</th>
+                      <th>Extracted Description</th>
+                      <th>ML Recommended Template</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in results %}
+                    <tr>
+                      <td>
+                        <div class="d-flex flex-wrap gap-1" style="max-width:200px;">
+                          {% for val in item.row[:3] %}
+                          <span class="badge bg-secondary-subtle text-secondary small text-truncate" style="max-width:90px;" title="{{ val }}">{{ val }}</span>
+                          {% endfor %}
+                          {% if item.row|length > 3 %}
+                          <span class="badge bg-light text-muted small">+{{ item.row|length - 3 }} more</span>
+                          {% endif %}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="small text-muted text-truncate-2" style="max-width: 220px;" title="{{ item.description }}">
+                          {{ item.description }}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="d-flex flex-column gap-1">
+                          {% if item.recommendations %}
+                            {% for tpl in item.recommendations[:2] %}
+                            <div class="small fw-600 d-flex align-items-center gap-1">
+                              <i class="fas {{ tpl.get_icon() }} text-accent small"></i> {{ tpl.name }}
+                            </div>
+                            {% endfor %}
+                          {% else %}
+                            <span class="text-muted small">No templates matched</span>
+                          {% endif %}
+                        </div>
+                      </td>
+                      <td>
+                        {% if item.recommendations %}
+                        <a href="{{ url_for('documents.generate', template_id=item.recommendations[0].id) }}"
+                           class="btn btn-sm btn-success px-3">
+                          <i class="fas fa-magic me-1"></i>Generate
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('documents.generate') }}" class="btn btn-sm btn-outline-secondary">
+                          Browse
+                        </a>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% else %}
+              <div class="empty-state py-5">
+                <i class="fas fa-file-csv"></i>
+                <h5 class="fw-700">No CSV analyzed yet</h5>
+                <p>Upload a requirements CSV file using the form on the left to start the ML classification pipeline.</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loader-overlay" id="loaderOverlay" style="display:none;">
+  <div class="loader-ring"></div>
+  <div class="loader-text">
+    <div class="fw-700 fs-5">ML Engine is classifying CSV rows…</div>
+    <div class="small opacity-75 mt-1">Analyzing description column features and matching templates…</div>
+  </div>
+</div>
+
+<script>
+function showLoader() {
+  document.getElementById('loaderOverlay').style.display = 'flex';
+}
+</script>
+
+<style>
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
+</style>
+{% endblock %}

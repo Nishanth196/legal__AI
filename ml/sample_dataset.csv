@@ -1,0 +1,151 @@
+Employee_ID,Employee_Name,Business_Type,Company_Name,State,Registration_Type,Annual_Turnover_Lakhs,Required_Document
+E001,Nishanth S,IT Services,NovaSphere Technologies,Tamil Nadu,Private Limited,250.50,GST Registration
+E002,Arun Kumar,Manufacturing,Arun Industries,Maharashtra,Public Limited,1500.00,Factory License
+E003,Priya R,Retail,Priya Stores,Karnataka,Sole Proprietorship,45.75,Trade License
+E004,Suresh M,Finance,Suresh Capital,Delhi,LLP,800.00,Company Registration
+E005,Kavitha L,Healthcare,Kavitha Medicals,Tamil Nadu,Private Limited,320.00,GST Registration
+E006,Rajesh P,IT Services,Rajesh Tech,Gujarat,Private Limited,180.25,MSME Registration
+E007,Deepa N,Manufacturing,Deepa Metals,Maharashtra,Public Limited,2200.00,ISO Compliance
+E008,Manoj K,Retail,Manoj Traders,Karnataka,Partnership,75.00,Business License
+E009,Sneha A,Finance,Sneha Investments,Delhi,Private Limited,950.00,Tax Declaration
+E010,Vikram S,Healthcare,Vikram Hospitals,Tamil Nadu,Public Limited,1800.00,Compliance Report
+E011,Anjali R,IT Services,Anjali Solutions,Tamil Nadu,Private Limited,300.00,GST Registration
+E012,Karthik M,Manufacturing,Karthik Steel,Maharashtra,Public Limited,1750.00,Factory License
+E013,Lakshmi P,Retail,Lakshmi Shops,Karnataka,Sole Proprietorship,55.00,Trade License
+E014,Mohan D,Finance,Mohan Finance,Delhi,LLP,700.00,Company Registration
+E015,Nisha K,Healthcare,Nisha Clinic,Tamil Nadu,Private Limited,280.00,GST Registration
+E016,Saravanan T,IT Services,Saravanan IT,Gujarat,Private Limited,160.00,MSME Registration
+E017,Radha V,Manufacturing,Radha Textiles,Maharashtra,Public Limited,1900.00,ISO Compliance
+E018,Balaji C,Retail,Balaji Market,Karnataka,Partnership,90.00,Business License
+E019,Pooja S,Finance,Pooja Financial,Delhi,Private Limited,1100.00,Tax Declaration
+E020,Ravi R,Healthcare,Ravi Hospital,Tamil Nadu,Public Limited,2000.00,Compliance Report
+E021,Santhosh G,IT Services,Santhosh Systems,Tamil Nadu,Private Limited,275.00,GST Registration
+E022,Meena J,Manufacturing,Meena Plastics,Maharashtra,Public Limited,1600.00,Factory License
+E023,Dinesh A,Retail,Dinesh General Store,Karnataka,Sole Proprietorship,40.50,Trade License
+E024,Uma P,Finance,Uma Capital,Delhi,LLP,650.00,Company Registration
+E025,Ganesh K,Healthcare,Ganesh Medical,Tamil Nadu,Private Limited,310.00,GST Registration
+E026,Harini B,IT Services,Harini Infotech,Gujarat,Private Limited,190.00,MSME Registration
+E027,Selva R,Manufacturing,Selva Forge,Maharashtra,Public Limited,2100.00,ISO Compliance
+E028,Kamala S,Retail,Kamala Textiles,Karnataka,Partnership,60.00,Business License
+E029,Naresh T,Finance,Naresh Trust,Delhi,Private Limited,875.00,Tax Declaration
+E030,Revathi M,Healthcare,Revathi Care,Tamil Nadu,Public Limited,1950.00,Compliance Report
+E031,Sunil P,IT Services,Sunil Digital,Tamil Nadu,Private Limited,230.00,GST Registration
+E032,Anitha J,Manufacturing,Anitha Metals,Maharashtra,Public Limited,1400.00,Factory License
+E033,Prabu D,Retail,Prabu Shop,Karnataka,Sole Proprietorship,35.00,Trade License
+E034,Keerthana V,Finance,Keerthana Wealth,Delhi,LLP,720.00,Company Registration
+E035,Muthukumar G,Healthcare,Muthu Hospital,Tamil Nadu,Private Limited,295.00,GST Registration
+E036,Padma N,IT Services,Padma Software,Gujarat,Private Limited,175.00,MSME Registration
+E037,Bala S,Manufacturing,Bala Steel Works,Maharashtra,Public Limited,2300.00,ISO Compliance
+E038,Valli T,Retail,Valli Supermarket,Karnataka,Partnership,80.00,Business License
+E039,Thamizh R,Finance,Thamizh Finance,Delhi,Private Limited,990.00,Tax Declaration
+E040,Saradha K,Healthcare,Saradha Clinic,Tamil Nadu,Public Limited,1700.00,Compliance Report
+E041,Naveen C,IT Services,Naveen Cloud,Tamil Nadu,Private Limited,260.00,GST Registration
+E042,Jothi L,Manufacturing,Jothi Castings,Maharashtra,Public Limited,1650.00,Factory License
+E043,Ramesh A,Retail,Ramesh Departmental,Karnataka,Sole Proprietorship,50.00,Trade License
+E044,Saranya P,Finance,Saranya Capital,Delhi,LLP,780.00,Company Registration
+E045,Chandru M,Healthcare,Chandru Health,Tamil Nadu,Private Limited,305.00,GST Registration
+E046,Usha V,IT Services,Usha Systems,Gujarat,Private Limited,210.00,MSME Registration
+E047,Prem K,Manufacturing,Prem Industries,Maharashtra,Public Limited,1850.00,ISO Compliance
+E048,Divya S,Retail,Divya Fashions,Karnataka,Partnership,70.00,Business License
+E049,Logesh R,Finance,Logesh Brokers,Delhi,Private Limited,925.00,Tax Declaration
+E050,Suganya N,Healthcare,Suganya Medicals,Tamil Nadu,Public Limited,2100.00,Compliance Report
+E051,Arjun V,IT Services,Arjun Ventures,Tamil Nadu,Private Limited,340.00,GST Registration
+E052,Malathi B,Manufacturing,Malathi Chemicals,Maharashtra,Public Limited,1550.00,Factory License
+E053,Girish T,Retail,Girish Stores,Karnataka,Sole Proprietorship,65.00,Trade License
+E054,Nithya K,Finance,Nithya Investments,Delhi,LLP,840.00,Company Registration
+E055,Senthil G,Healthcare,Senthil Clinic,Tamil Nadu,Private Limited,270.00,GST Registration
+E056,Vani R,IT Services,Vani Technologies,Gujarat,Private Limited,155.00,MSME Registration
+E057,Rajan S,Manufacturing,Rajan Foundry,Maharashtra,Public Limited,2000.00,ISO Compliance
+E058,Kokila P,Retail,Kokila Textiles,Karnataka,Partnership,85.00,Business License
+E059,Praveen M,Finance,Praveen Advisory,Delhi,Private Limited,1050.00,Tax Declaration
+E060,Jaya N,Healthcare,Jaya Hospital,Tamil Nadu,Public Limited,1850.00,Compliance Report
+E061,Murugan A,IT Services,Murugan Tech,Tamil Nadu,Private Limited,220.00,GST Registration
+E062,Kamali D,Manufacturing,Kamali Machines,Maharashtra,Public Limited,1700.00,Factory License
+E063,Yuvaraj K,Retail,Yuvaraj Kirana,Karnataka,Sole Proprietorship,30.00,Trade License
+E064,Preethi V,Finance,Preethi Wealth,Delhi,LLP,690.00,Company Registration
+E065,Elango S,Healthcare,Elango Medicals,Tamil Nadu,Private Limited,285.00,GST Registration
+E066,Indira R,IT Services,Indira Infotech,Gujarat,Private Limited,200.00,MSME Registration
+E067,Sudhakar B,Manufacturing,Sudhakar Plastics,Maharashtra,Public Limited,2250.00,ISO Compliance
+E068,Chitra M,Retail,Chitra Boutique,Karnataka,Partnership,55.00,Business License
+E069,Ashwin T,Finance,Ashwin Capital,Delhi,Private Limited,860.00,Tax Declaration
+E070,Nalini G,Healthcare,Nalini Healthcare,Tamil Nadu,Public Limited,1750.00,Compliance Report
+E071,Kiran P,IT Services,Kiran Digital,Tamil Nadu,Private Limited,315.00,GST Registration
+E072,Bharathi S,Manufacturing,Bharathi Industries,Maharashtra,Public Limited,1450.00,Factory License
+E073,Vijay K,Retail,Vijay Electronics,Karnataka,Sole Proprietorship,42.00,Trade License
+E074,Sangeetha R,Finance,Sangeetha Finance,Delhi,LLP,760.00,Company Registration
+E075,Thilak M,Healthcare,Thilak Hospital,Tamil Nadu,Private Limited,330.00,GST Registration
+E076,Geetha N,IT Services,Geetha Soft,Gujarat,Private Limited,145.00,MSME Registration
+E077,Durai V,Manufacturing,Durai Steel,Maharashtra,Public Limited,1950.00,ISO Compliance
+E078,Parvathi A,Retail,Parvathi Superstore,Karnataka,Partnership,95.00,Business License
+E079,Vignesh C,Finance,Vignesh Trust,Delhi,Private Limited,1000.00,Tax Declaration
+E080,Sumathi R,Healthcare,Sumathi Clinic,Tamil Nadu,Public Limited,1900.00,Compliance Report
+E081,Harish B,IT Services,Harish Bytes,Tamil Nadu,Private Limited,290.00,GST Registration
+E082,Gomathi K,Manufacturing,Gomathi Castings,Maharashtra,Public Limited,1600.00,Factory License
+E083,Selvam D,Retail,Selvam Stores,Karnataka,Sole Proprietorship,38.00,Trade License
+E084,Vasantha P,Finance,Vasantha Capital,Delhi,LLP,810.00,Company Registration
+E085,Manikandan G,Healthcare,Manikandan Medical,Tamil Nadu,Private Limited,265.00,GST Registration
+E086,Shanti S,IT Services,Shanti Systems,Gujarat,Private Limited,185.00,MSME Registration
+E087,Aravind T,Manufacturing,Aravind Alloys,Maharashtra,Public Limited,2150.00,ISO Compliance
+E088,Mythili R,Retail,Mythili Clothing,Karnataka,Partnership,72.00,Business License
+E089,Gopal V,Finance,Gopal Financial,Delhi,Private Limited,940.00,Tax Declaration
+E090,Renuka N,Healthcare,Renuka Health,Tamil Nadu,Public Limited,1800.00,Compliance Report
+E091,Periyasamy A,IT Services,Periyasamy Tech,Tamil Nadu,Private Limited,245.00,GST Registration
+E092,Sundari K,Manufacturing,Sundari Textiles,Maharashtra,Public Limited,1750.00,Factory License
+E093,Nagarajan D,Retail,Nagarajan Stores,Karnataka,Sole Proprietorship,47.00,Trade License
+E094,Kaveri M,Finance,Kaveri Brokers,Delhi,LLP,730.00,Company Registration
+E095,Sekar P,Healthcare,Sekar Clinic,Tamil Nadu,Private Limited,300.00,GST Registration
+E096,Lalitha V,IT Services,Lalitha Solutions,Gujarat,Private Limited,170.00,MSME Registration
+E097,Pandian S,Manufacturing,Pandian Pipes,Maharashtra,Public Limited,2050.00,ISO Compliance
+E098,Jamuna R,Retail,Jamuna Fashion,Karnataka,Partnership,68.00,Business License
+E099,Baskaran T,Finance,Baskaran Advisory,Delhi,Private Limited,1080.00,Tax Declaration
+E100,Kalai N,Healthcare,Kalai Hospital,Tamil Nadu,Public Limited,2050.00,Compliance Report
+E101,Vetri G,IT Services,Vetri Global,Tamil Nadu,Private Limited,355.00,GST Registration
+E102,Brindha S,Manufacturing,Brindha Chemicals,Maharashtra,Public Limited,1500.00,Factory License
+E103,Chellapan R,Retail,Chellapan Mart,Karnataka,Sole Proprietorship,32.00,Trade License
+E104,Dhivya P,Finance,Dhivya Wealth,Delhi,LLP,670.00,Company Registration
+E105,Karthikeyan B,Healthcare,Karthikeyan Medical,Tamil Nadu,Private Limited,275.00,GST Registration
+E106,Narmadha K,IT Services,Narmadha IT,Gujarat,Private Limited,195.00,MSME Registration
+E107,Thennarasu M,Manufacturing,Thennarasu Metals,Maharashtra,Public Limited,2200.00,ISO Compliance
+E108,Sundaresan V,Retail,Sundaresan Stores,Karnataka,Partnership,88.00,Business License
+E109,Meenakshi T,Finance,Meenakshi Capital,Delhi,Private Limited,970.00,Tax Declaration
+E110,Rajadurai N,Healthcare,Rajadurai Hospital,Tamil Nadu,Public Limited,1650.00,Compliance Report
+E111,Anbarasan A,IT Services,Anbarasan Apps,Tamil Nadu,Private Limited,215.00,GST Registration
+E112,Thilagam S,Manufacturing,Thilagam Industries,Maharashtra,Public Limited,1850.00,Factory License
+E113,Sethuraman K,Retail,Sethuraman Mart,Karnataka,Sole Proprietorship,43.00,Trade License
+E114,Rajalakshmi D,Finance,Rajalakshmi Finance,Delhi,LLP,750.00,Company Registration
+E115,Perumal P,Healthcare,Perumal Health,Tamil Nadu,Private Limited,320.00,GST Registration
+E116,Vanmathi R,IT Services,Vanmathi Soft,Gujarat,Private Limited,165.00,MSME Registration
+E117,Ganesan V,Manufacturing,Ganesan Forge,Maharashtra,Public Limited,1950.00,ISO Compliance
+E118,Thirunagai B,Retail,Thirunagai Textiles,Karnataka,Partnership,77.00,Business License
+E119,Sundaram M,Finance,Sundaram Trust,Delhi,Private Limited,910.00,Tax Declaration
+E120,Prabavathi T,Healthcare,Prabavathi Clinic,Tamil Nadu,Public Limited,1700.00,Compliance Report
+E121,Ramasamy G,IT Services,Ramasamy Tech,Tamil Nadu,Private Limited,240.00,Startup India Registration
+E122,Kokila B,Manufacturing,Kokila Cables,Maharashtra,Public Limited,1550.00,Environmental Clearance
+E123,Ezhilarasan K,Retail,Ezhil Stores,Karnataka,Sole Proprietorship,36.00,Trade License
+E124,Padmavathi D,Finance,Padmavathi Brokers,Delhi,LLP,660.00,Company Registration
+E125,Muniappan P,Healthcare,Muniappan Medical,Tamil Nadu,Private Limited,260.00,GST Registration
+E126,Vasuki R,IT Services,Vasuki Digital,Gujarat,Private Limited,205.00,MSME Registration
+E127,Dhandapani V,Manufacturing,Dhandapani Iron,Maharashtra,Public Limited,2100.00,ISO Compliance
+E128,Kalavathi S,Retail,Kalavathi Boutique,Karnataka,Partnership,62.00,Business License
+E129,Subramanian T,Finance,Subramanian Capital,Delhi,Private Limited,880.00,Tax Declaration
+E130,Manorama N,Healthcare,Manorama Hospital,Tamil Nadu,Public Limited,1750.00,Compliance Report
+E131,Murugesan A,IT Services,Murugesan Cloud,Tamil Nadu,Private Limited,195.00,Startup India Registration
+E132,Saradhambal K,Manufacturing,Saradhambal Pipes,Maharashtra,Public Limited,1450.00,Factory License
+E133,Pazhanivel D,Retail,Pazhanivel Market,Karnataka,Sole Proprietorship,28.00,Trade License
+E134,Krishnamurthy M,Finance,Krishnamurthy Finance,Delhi,LLP,700.00,Company Registration
+E135,Ponmalar P,Healthcare,Ponmalar Clinic,Tamil Nadu,Private Limited,285.00,GST Registration
+E136,Saraswathi V,IT Services,Saraswathi Infotech,Gujarat,Private Limited,155.00,MSME Registration
+E137,Kannappan S,Manufacturing,Kannappan Steel,Maharashtra,Public Limited,2300.00,ISO Compliance
+E138,Mayilvahanan R,Retail,Mayilvahanan Stores,Karnataka,Partnership,80.00,Business License
+E139,Ragunathan T,Finance,Ragunathan Advisory,Delhi,Private Limited,1020.00,Tax Declaration
+E140,Chellamma N,Healthcare,Chellamma Medical,Tamil Nadu,Public Limited,1900.00,Compliance Report
+E141,Venkataraman G,IT Services,Venkataraman Tech,Tamil Nadu,Private Limited,330.00,GST Registration
+E142,Sivakami S,Manufacturing,Sivakami Foundry,Maharashtra,Public Limited,1800.00,Factory License
+E143,Thangamani A,Retail,Thangamani Grocery,Karnataka,Sole Proprietorship,52.00,Trade License
+E144,Krishnaveni K,Finance,Krishnaveni Wealth,Delhi,LLP,790.00,Company Registration
+E145,Palaniswamy B,Healthcare,Palaniswamy Hospital,Tamil Nadu,Private Limited,340.00,GST Registration
+E146,Choodamani R,IT Services,Choodamani Apps,Gujarat,Private Limited,175.00,MSME Registration
+E147,Rathinam V,Manufacturing,Rathinam Alloys,Maharashtra,Public Limited,2050.00,ISO Compliance
+E148,Vijayalakshmi T,Retail,Vijayalakshmi Fashion,Karnataka,Partnership,92.00,Business License
+E149,Ponnusamy M,Finance,Ponnusamy Finance,Delhi,Private Limited,960.00,Tax Declaration
+E150,Thirumalai N,Healthcare,Thirumalai Health,Tamil Nadu,Public Limited,2000.00,Compliance Report
